@@ -1,10 +1,9 @@
-import Link from "next/link";
 import type { Project } from "../lib/content";
 
 export function ProjectCard({ project, index = 0 }: { project: Project; index?: number }) {
   return (
     <article className={`project-card accent-${project.accent ?? (["blue", "yellow", "coral"][index % 3])}`}>
-      <Link href={`/projects/${project.slug}`} aria-label={`View ${project.title} case study`}>
+      <a href={`/projects/${project.slug}`} aria-label={`View ${project.title} case study`}>
         <div className="project-visual" aria-hidden="true">
           <span className="project-number">0{index + 1}</span>
           <div className="project-orbit"><span /></div>
@@ -18,7 +17,7 @@ export function ProjectCard({ project, index = 0 }: { project: Project; index?: 
           <p>{project.summary}</p>
           <span className="text-link">Explore the case study <span aria-hidden="true">→</span></span>
         </div>
-      </Link>
+      </a>
     </article>
   );
 }

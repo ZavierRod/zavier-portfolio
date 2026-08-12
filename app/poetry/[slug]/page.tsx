@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PoemDates } from "../../../components/poem-dates";
 import { getPublicPoem, getPublicPoems } from "../../../db/repository";
@@ -17,5 +16,5 @@ export default async function PoemPage({ params }: { params: Promise<{ slug: str
   const index = poems.findIndex((item) => item.id === poem.id);
   const previous = index > 0 ? poems[index - 1] : null;
   const next = index >= 0 && index < poems.length - 1 ? poems[index + 1] : null;
-  return <main className="poem-reader"><nav><Link href="/" className="brand"><span className="brand-mark">ZR</span><span>Zavier Rodrigues</span></Link><Link href="/poetry">All poems</Link></nav><article><header><p className="eyebrow">A poem by Zavier Rodrigues</p><h1>{poem.title}</h1><div><PoemDates writtenAt={poem.writtenAt} publishedAt={poem.publishedAt} />{poem.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></header><Markdown content={poem.content} poetry /><footer><span>— Zavier</span></footer></article><nav className="poem-pagination">{previous ? <Link href={`/poetry/${previous.slug}`}><small>Previous</small><strong>← {previous.title}</strong></Link> : <span />}{next ? <Link href={`/poetry/${next.slug}`}><small>Next</small><strong>{next.title} →</strong></Link> : <Link href="/poetry"><small>Return</small><strong>All poems →</strong></Link>}</nav></main>;
+  return <main className="poem-reader"><nav><a href="/" className="brand"><span className="brand-mark">ZR</span><span>Zavier Rodrigues</span></a><a href="/poetry">All poems</a></nav><article><header><p className="eyebrow">A poem by Zavier Rodrigues</p><h1>{poem.title}</h1><div><PoemDates writtenAt={poem.writtenAt} publishedAt={poem.publishedAt} />{poem.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></header><Markdown content={poem.content} poetry /><footer><span>— Zavier</span></footer></article><nav className="poem-pagination">{previous ? <a href={`/poetry/${previous.slug}`}><small>Previous</small><strong>← {previous.title}</strong></a> : <span />}{next ? <a href={`/poetry/${next.slug}`}><small>Next</small><strong>{next.title} →</strong></a> : <a href="/poetry"><small>Return</small><strong>All poems →</strong></a>}</nav></main>;
 }

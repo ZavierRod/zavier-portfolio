@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { PoemDates } from "./poem-dates";
 import type { Poem, Project } from "../lib/content";
 import { formatDate, slugify } from "../lib/content";
@@ -105,7 +104,7 @@ export function AdminStudio({ displayName }: { displayName: string }) {
             </button>
           ))}
         </div>
-        <Link className="back-site" href="/">← Back to the site</Link>
+        <a className="back-site" href="/">← Back to the site</a>
       </aside>
 
       <main className="studio-editor">
