@@ -42,7 +42,11 @@ test("admin data access is owner-scoped and protected before reads or writes", a
   assert.match(repository, /WHERE poems\.owner_id = excluded\.owner_id/);
   assert.match(repository, /WHERE projects\.owner_id = excluded\.owner_id/);
   assert.match(route, /const auth = await owner\(\)/);
-  assert.match(auth, /ADMIN_EMAIL/);
+  assert.match(auth, /ADMIN_PASSWORD_HASH/);
+  assert.match(auth, /ADMIN_SESSION_SECRET/);
+  assert.match(auth, /HttpOnly; Secure; SameSite=Strict/);
+  assert.match(auth, /PBKDF2/);
+  assert.match(auth, /LOGIN_ATTEMPT_LIMIT/);
   assert.match(auth, /NODE_ENV !== "production"/);
 });
 

@@ -42,7 +42,7 @@ The current inSync, Blink Pay, and Agora records are visibly labelled sample con
 
 - Final domain
 - Production hosting approval
-- Production `ADMIN_EMAIL`
+- Production admin password and recovery copy stored in a password manager
 - Analytics preference, if any
 - Social preview copy approval
 - Accessibility review of supplied images and documents

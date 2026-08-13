@@ -35,6 +35,11 @@ const eslintConfig = defineConfig([
         version: "detect",
       },
     },
+    rules: {
+      // Standard document navigation is intentional while vinext's client-side
+      // Link shim is incompatible with this deployed runtime.
+      "@next/next/no-html-link-for-pages": "off",
+    },
   },
 ]);
 

@@ -27,7 +27,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). During local development, `/admin` uses a development-only owner identity if `ADMIN_DEV_EMAIL` is blank. This fallback is disabled in production.
+Open [http://localhost:3000](http://localhost:3000). During local development, `/admin` remains directly available when production password secrets are absent. This fallback is disabled in production.
 
 Useful checks:
 
@@ -50,10 +50,11 @@ Copy `.env.example` to `.env.local`. Never commit `.env.local`.
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical production origin, such as `https://example.com` |
-| `ADMIN_EMAIL` | Exact ChatGPT account email authorized to use `/admin` in production |
-| `ADMIN_DEV_EMAIL` | Optional local-only owner identity override |
+| `ADMIN_OWNER_ID` | Stable owner key used by existing poems and projects |
+| `ADMIN_PASSWORD_HASH` | PBKDF2 password verifier stored as a hosted secret |
+| `ADMIN_SESSION_SECRET` | Random HMAC secret used to sign secure admin sessions |
 
-The production admin uses platform-managed Sign in with ChatGPT. Successful sign-in establishes identity; `ADMIN_EMAIL` is the separate server-side owner allowlist. Anonymous and non-owner requests are rejected before content is read or changed.
+The production admin uses a private password verifier and a signed, HttpOnly, Secure, SameSite session cookie. The plaintext password is never stored in source or hosted configuration. Failed attempts are rate-limited, and anonymous requests are rejected before content is read or changed.
 
 ## Architecture
 

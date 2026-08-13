@@ -10,7 +10,7 @@ function error(message: string, status: number) {
 
 async function owner() {
   const admin = await getAdmin();
-  if (!admin.ok) return { response: error(admin.reason === "not-owner" ? "This account is not authorized." : "Authentication is required.", admin.reason === "not-owner" ? 403 : 401) };
+  if (!admin.ok) return { response: error("Authentication is required.", 401) };
   // The admin allowlist already verifies this address server-side. Using the
   // normalized email as the content key keeps imported work editable after a
   // deployment, where the platform-issued user ID is different from local dev.
