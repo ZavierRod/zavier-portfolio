@@ -51,10 +51,11 @@ Copy `.env.example` to `.env.local`. Never commit `.env.local`.
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical production origin, such as `https://example.com` |
 | `ADMIN_OWNER_ID` | Stable owner key used by existing poems and projects |
-| `ADMIN_PASSWORD_HASH` | PBKDF2 password verifier stored as a hosted secret |
+| `ADMIN_PASSWORD_HASH` | Keyed HMAC password verifier stored as a hosted secret |
+| `ADMIN_PASSWORD_PEPPER` | Independent secret key required to verify the admin password |
 | `ADMIN_SESSION_SECRET` | Random HMAC secret used to sign secure admin sessions |
 
-The production admin uses a private password verifier and a signed, HttpOnly, Secure, SameSite session cookie. The plaintext password is never stored in source or hosted configuration. Failed attempts are rate-limited, and anonymous requests are rejected before content is read or changed.
+The production admin uses a keyed HMAC password verifier and a signed, HttpOnly, Secure, SameSite session cookie. The plaintext password is never stored in source or hosted configuration, and the verifier cannot be tested offline without its separate secret key. Failed attempts are rate-limited, and anonymous requests are rejected before content is read or changed.
 
 ## Architecture
 

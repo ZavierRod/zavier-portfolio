@@ -48,11 +48,14 @@ function constantTimeEqual(left: Uint8Array, right: Uint8Array): boolean {
   return difference === 0;
 }
 
-async function hmac(value: string): Promise<Uint8Array> {
-  const secret = config("ADMIN_SESSION_SECRET");
+async function hmacWithSecret(value: string, secret: string | undefined): Promise<Uint8Array> {
   if (!secret) return new Uint8Array();
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value)));
+}
+
+async function hmac(value: string): Promise<Uint8Array> {
+  return hmacWithSecret(value, config("ADMIN_SESSION_SECRET"));
 }
 
 function cookieValue(cookieHeader: string | null): string | null {
@@ -82,14 +85,15 @@ async function validSession(cookieHeader: string | null): Promise<boolean> {
 export async function getAdmin(): Promise<AdminResult> {
   const id = ownerId();
   const passwordHash = config("ADMIN_PASSWORD_HASH");
+  const passwordPepper = config("ADMIN_PASSWORD_PEPPER");
   const sessionSecret = config("ADMIN_SESSION_SECRET");
 
-  if (process.env.NODE_ENV !== "production" && (!passwordHash || !sessionSecret)) {
+  if (process.env.NODE_ENV !== "production" && (!passwordHash || !passwordPepper || !sessionSecret)) {
     const devId = id || "zavier@local.test";
     return { ok: true, user: { userId: devId, email: devId, displayName: "Zavier", fullName: "Zavier Rodrigues" } };
   }
 
-  if (!id || !passwordHash || !sessionSecret) return { ok: false, reason: "not-configured" };
+  if (!id || !passwordHash || !passwordPepper || !sessionSecret) return { ok: false, reason: "not-configured" };
   const requestHeaders = await headers();
   if (!(await validSession(requestHeaders.get("cookie")))) return { ok: false, reason: "signed-out" };
   return { ok: true, user: { userId: id, email: id, displayName: "Zavier", fullName: "Zavier Rodrigues" } };
@@ -98,13 +102,10 @@ export async function getAdmin(): Promise<AdminResult> {
 export async function verifyAdminPassword(password: string): Promise<boolean> {
   const encoded = config("ADMIN_PASSWORD_HASH");
   if (!encoded || password.length < 12 || password.length > 256) return false;
-  const [algorithm, iterationsValue, saltValue, hashValue, extra] = encoded.split("$");
-  const iterations = Number(iterationsValue);
-  if (algorithm !== "pbkdf2-sha256" || !Number.isSafeInteger(iterations) || iterations < 100_000 || !saltValue || !hashValue || extra) return false;
+  const [algorithm, hashValue, extra] = encoded.split("$");
+  if (algorithm !== "hmac-sha256" || !hashValue || extra) return false;
   try {
-    const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-    const salt = base64UrlToBytes(saltValue);
-    const derived = new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: salt.buffer as ArrayBuffer, iterations }, material, 256));
+    const derived = await hmacWithSecret(password, config("ADMIN_PASSWORD_PEPPER"));
     return constantTimeEqual(derived, base64UrlToBytes(hashValue));
   } catch {
     return false;
